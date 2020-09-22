@@ -10,6 +10,8 @@
     let totaltime = document.getElementById("totaltime")
     let comment = document.getElementById("comment")
     let fail = document.getElementById("fail")
+    let testscore = document.getElementById("testscore")
+    const usersArray = []
 
     // ON REMPLIT LE TABLEAU ET ON GENERE ALEATOIREMENT UN INDEX
     const getWordInArray = () => {
@@ -86,6 +88,50 @@
                 comment.innerHTML = ""
                 // On affiche le bouton rejouer pour recommencer
                 playbutton.style.display = 'block'
+
+                const pseudo = window.prompt("Entrez votre pseudo !", "")
+                const person = {
+                    name: pseudo,
+                    totalscore: score,
+                }
+                storagePseudo = pseudo + score
+                //console.log(storagePseudo)
+                window.localStorage.setItem(storagePseudo, JSON.stringify(person));
+                let userDatas = window.localStorage.getItem(storagePseudo);
+                let parsedUserDatas = JSON.parse(userDatas);
+
+                let localStorageDatas = []
+
+                for(var i in localStorage)
+                {
+                    localStorageDatas.push(localStorage[i])
+                }
+
+                console.log(localStorageDatas)
+
+                for (let entry in localStorageDatas) {
+                    usersArray.push(`${entry} : ${localStorageDatas[entry]}`)
+                };
+
+               
+
+                    function compare(a, b) {
+                    // Use toUpperCase() to ignore character casing
+                    const userA = a.totalscore
+                    const userB = b.totalscore
+                  
+                    let comparison = 0;
+                    if (userA > userB) {
+                      comparison = 1;
+                    } else if (userA < userB) {
+                      comparison = -1;
+                    }
+                    return comparison;
+                  }
+                  
+                  //console.log(localStorageDatas.sort(compare))
+                
+
             }
         }
     })
@@ -100,3 +146,6 @@
     }, 10000);
 
     
+
+
+
