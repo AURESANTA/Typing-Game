@@ -9,6 +9,7 @@
     let scorepoint = document.getElementById("point")
     let totaltime = document.getElementById("totaltime")
     let comment = document.getElementById("comment")
+    let fail = document.getElementById("fail")
 
     // ON REMPLIT LE TABLEAU ET ON GENERE ALEATOIREMENT UN INDEX
     const getWordInArray = () => {
@@ -43,14 +44,14 @@
     }
     // Gestion du timer global (seul le bouton rejouer le fait reset)
     let totaltimer = setInterval(() => {
-        document.getElementById("totaltime").innerHTML = "Temps Total : "
+        totaltime.innerHTML = "Temps Total : "
         let writetotaltime = document.createTextNode(globaltimer)
         totaltime.appendChild(writetotaltime)
         globaltimer += 1
     }, 1000)
     // Gestion du timer du mot
     let wordtimer = setInterval(() => {
-        document.getElementById("wordtime").innerHTML = "Mot suivant dans : "
+        time.innerHTML = "Mot suivant dans : "
         let writetime = document.createTextNode(timer)
         time.appendChild(writetime)
         timer += 1
@@ -63,19 +64,33 @@
             let input = document.getElementById('text')
             if (compareWord(wordInArray, input.value.trim())) {
                 score++
-                // Essai de générer un commentaire en fonction du score abandonné 
+                // Essai de générer un commentaire en fonction du score
+                if (score == 3) {
+                    comment.innerHTML = "Pas mal !";
+                }
+                if (score == 5) {
+                    comment.innerHTML = "Un vrai pro !"
+                }
+                if (score == 10) {
+                    comment.style.color = "green"
+                    comment.innerHTML = "MONSTRUEUX"
+                }
+              
                 document.getElementById("text").value = ""
                 startPlay()
             } else {
                 clearInterval(timerText)
                 clearInterval(wordtimer)
                 clearInterval(totaltimer)
-                document.getElementById("fail").innerHTML = "Raté, clique pour rejouer !"
+                fail.innerHTML = "Raté, clique pour rejouer !"
+                comment.innerHTML = ""
                 // On affiche le bouton rejouer pour recommencer
                 playbutton.style.display = 'block'
             }
         }
     })
+
+
 
     // Par défaut, on lance la fonction au lancement de la page
     startPlay()

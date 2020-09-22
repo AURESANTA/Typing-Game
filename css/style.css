@@ -20,6 +20,11 @@ body {
     text-align: center;
 }
 
+#comment {
+    margin-top: 50px;
+    font-weight: bold;
+}
+
 #fail {
     margin-top: 100px;
     margin-bottom: 20px;
