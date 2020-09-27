@@ -118,6 +118,7 @@
             }
             listLadderDatas.forEach(data => {
                 let leader = document.createElement("div");
+                leader.classList.add("ladderstyles");
                 leader.innerHTML = data.score + ' - ' + data.pseudo;
                 ladderboard.appendChild(leader);
             })
@@ -125,8 +126,8 @@
     }
 
     document.body.addEventListener("keydown", function (e) {
-        // Keycode 13 = entrée
-        if (e.keyCode === 13) {
+        // Keycode 32 = space
+        if (e.keyCode === 32) {
             let input = document.getElementById('text')
             if (compareWord(wordInArray, input.value.trim())) {
                 score++
