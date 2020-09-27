@@ -1,7 +1,7 @@
     // DECLARATION DES VARIABLES
  
-    let globaltimer = 0
-    let timer = 0
+    let globaltimer = 60
+    let timer = 10
     let wordInArray = ""
     let currentWord = document.getElementById("currentword")
     let time = document.getElementById("wordtime")
@@ -11,9 +11,16 @@
     let comment = document.getElementById("comment")
     let fail = document.getElementById("fail")
     let testscore = document.getElementById("testscore")
-    const usersArray = []
+    let ladderboard = document.getElementById("ladderboard")
+    let firstSet = false
 
-    // ON REMPLIT LE TABLEAU ET ON GENERE ALEATOIREMENT UN INDEX
+    let timerGame =  setInterval(() => {
+        startPlay()
+    }, 11000);
+    
+    let wordsArray = []
+    let usersArray = []
+
     const getWordInArray = () => {
         const wordsArray = [
             "ordinateur",
@@ -25,125 +32,131 @@
         return wordsArray[targetWord];
     }
 
-
     const startPlay = () => {
         wordInArray = getWordInArray()
         currentWord.innerHTML = ""
         let text = document.createTextNode(wordInArray)
         currentWord.appendChild(text)
-        // On remet le timer du mot uniquement à 0 lors de l'appel de la function
-        timer = 0
+        timer = 10
         scorepoint.innerHTML = ""
         let writescore = document.createTextNode("Score actuel : " + score)
         scorepoint.appendChild(writescore)
-        // On cache le bouton rejouer par défaut
-        playbutton.style.display = 'none'
-     
-}
-    // ON COMPARE LE MOT GENERE ET L'INPUT
+        playbutton.style.display = 'none' 
+    }
+
+    const resetWord = () => {
+            startPlay()
+            timerGame  
+    } 
+
     const compareWord = (firstWord, secondWord) => {
         return firstWord === secondWord
     }
-    // Gestion du timer global (seul le bouton rejouer le fait reset)
-    let totaltimer = setInterval(() => {
+
+    const totaltimer = setInterval(() => {
         totaltime.innerHTML = "Temps Total : "
         let writetotaltime = document.createTextNode(globaltimer)
         totaltime.appendChild(writetotaltime)
-        globaltimer += 1
+        globaltimer -= 1
+        if (globaltimer == 0) {
+            GameOver()
+        }
     }, 1000)
-    // Gestion du timer du mot
-    let wordtimer = setInterval(() => {
+
+    const wordtimer = setInterval(() => {
         time.innerHTML = "Mot suivant dans : "
         let writetime = document.createTextNode(timer)
         time.appendChild(writetime)
-        timer += 1
+        timer -= 1
+        if (timer == 0) {
+            GameOver()
+        }
     }, 1000)
- 
-    // Lorsqu'on appuie sur entrée, on entre dans l'event
+
+    const ScoreComments = () => {
+        if (score == 3) {
+            comment.innerHTML = "Pas mal !";
+        }
+        if (score == 5) {
+            comment.innerHTML = "Un vrai pro !"
+        }
+        if (score == 10) {
+            comment.style.color = "green"
+            comment.innerHTML = "MONSTRUEUX"
+        }
+    }
+
+    const GameOver = () => {
+        clearInterval(timerGame)
+                clearInterval(wordtimer)
+                clearInterval(totaltimer)
+                fail.innerHTML = "Raté, clique pour rejouer !"
+                comment.innerHTML = ""
+                playbutton.style.display = 'block'
+                LadderDatas()      
+    }
+
+    const LadderDatas = () => {
+
+        let pseudo = window.prompt("TERMINÉ, entrez votre pseudo !", "")
+
+        if (localStorage.getItem('allusers')) {
+            usersArray = JSON.parse(localStorage.getItem('allusers'))
+        }
+
+        usersArray.push({pseudo:pseudo,score:score})
+        usersArray.sort((playerOne, playerTwo) => {
+            return parseFloat(playerTwo.score) - parseFloat(playerOne.score)
+        })
+
+        localStorage.setItem('allusers' , JSON.stringify(usersArray))
+
+        let listLadderDatas = JSON.parse(localStorage.getItem('allusers'));
+        if(listLadderDatas){
+            if (listLadderDatas.length > 10) {
+                listLadderDatas = listLadderDatas.splice(0, 10);
+            }
+            listLadderDatas.forEach(data => {
+                let leader = document.createElement("div");
+                leader.innerHTML = data.score + ' - ' + data.pseudo;
+                ladderboard.appendChild(leader);
+            })
+        }
+    }
+
     document.body.addEventListener("keydown", function (e) {
         // Keycode 13 = entrée
         if (e.keyCode === 13) {
             let input = document.getElementById('text')
             if (compareWord(wordInArray, input.value.trim())) {
                 score++
-                // Essai de générer un commentaire en fonction du score
-                if (score == 3) {
-                    comment.innerHTML = "Pas mal !";
-                }
-                if (score == 5) {
-                    comment.innerHTML = "Un vrai pro !"
-                }
-                if (score == 10) {
-                    comment.style.color = "green"
-                    comment.innerHTML = "MONSTRUEUX"
-                }
-              
+                ScoreComments()
                 document.getElementById("text").value = ""
-                startPlay()
+                console.log(timerGame)
+                clearInterval(timerGame)
+                firstSet = true
+                timerGame =  setInterval(() => {
+                    startPlay()
+                }, 11000);
+                resetWord()
             } else {
-                clearInterval(timerText)
-                clearInterval(wordtimer)
-                clearInterval(totaltimer)
-                fail.innerHTML = "Raté, clique pour rejouer !"
-                comment.innerHTML = ""
-                // On affiche le bouton rejouer pour recommencer
-                playbutton.style.display = 'block'
-
-                const pseudo = window.prompt("Entrez votre pseudo !", "")
-                const person = {
-                    name: pseudo,
-                    totalscore: score,
-                }
-                storagePseudo = pseudo + score
-                //console.log(storagePseudo)
-                window.localStorage.setItem(storagePseudo, JSON.stringify(person));
-                let userDatas = window.localStorage.getItem(storagePseudo);
-                let parsedUserDatas = JSON.parse(userDatas);
-
-                let localStorageDatas = []
-
-                for(var i in localStorage)
-                {
-                    localStorageDatas.push(localStorage[i])
-                }
-
-                console.log(localStorageDatas)
-
-                for (let entry in localStorageDatas) {
-                    usersArray.push(`${entry} : ${localStorageDatas[entry]}`)
-                };
-
-               
-
-                    function compare(a, b) {
-                    // Use toUpperCase() to ignore character casing
-                    const userA = a.totalscore
-                    const userB = b.totalscore
-                  
-                    let comparison = 0;
-                    if (userA > userB) {
-                      comparison = 1;
-                    } else if (userA < userB) {
-                      comparison = -1;
-                    }
-                    return comparison;
-                  }
-                  
-                  //console.log(localStorageDatas.sort(compare))
-                
-
+                GameOver()
             }
         }
     })
 
-
-
     // Par défaut, on lance la fonction au lancement de la page
     startPlay()
-    let timerText = setInterval(() => {
-        startPlay()
-        // Toutes les 10 secondes, le mot reset ainsi que le timer du mot
-    }, 10000);
+    if (firstSet === false) {
+        resetWord()
+    }
+  
+
+
+
+  
+ 
+
 
     
 
